@@ -4,12 +4,6 @@ import 'interfaces.dart';
 
 /// A smart HTTP client with built-in caching and interception.
 class SmartHttpClient extends http.BaseClient {
-  final CacheStore _cacheStore;
-  final CachePolicy _cachePolicy;
-  final http.Client _innerClient;
-  final List<RequestInterceptor> requestInterceptors;
-  final List<ResponseInterceptor> responseInterceptors;
-
   SmartHttpClient({
     required CacheStore cacheStore,
     required CachePolicy cachePolicy,
@@ -24,31 +18,30 @@ class SmartHttpClient extends http.BaseClient {
   factory SmartHttpClient.inMemory({
     CachePolicy cachePolicy = const CachePolicy(),
     http.Client? innerClient,
-  }) {
-    return SmartHttpClient(
-      cacheStore: InMemoryCacheStore(cachePolicy: cachePolicy),
-      cachePolicy: cachePolicy,
-      innerClient: innerClient,
-    );
-  }
+  }) =>
+      SmartHttpClient(
+        cacheStore: InMemoryCacheStore(cachePolicy: cachePolicy),
+        cachePolicy: cachePolicy,
+        innerClient: innerClient,
+      );
 
   /// Creates a client with a persistent Hive cache.
   factory SmartHttpClient.withHive({
     String boxName = 'smart_http_cache',
     CachePolicy cachePolicy = const CachePolicy(),
     http.Client? innerClient,
-  }) {
-    return SmartHttpClient(
-      cacheStore: HiveCacheStore(
-        boxName: boxName,
+  }) =>
+      SmartHttpClient(
+        cacheStore: HiveCacheStore(
+          boxName: boxName,
+          cachePolicy: cachePolicy,
+        ),
         cachePolicy: cachePolicy,
-      ),
-      cachePolicy: cachePolicy,
-      innerClient: innerClient,
-    );
-  }
+        innerClient: innerClient,
+      );
 
-  /// Creates a client with the best available cache (Hive if possible, otherwise In-Memory).
+  /// Creates a client with the best available cache
+  /// (Hive if possible, otherwise In-Memory).
   factory SmartHttpClient.cached({
     CachePolicy cachePolicy = const CachePolicy(),
     http.Client? innerClient,
@@ -66,6 +59,11 @@ class SmartHttpClient extends http.BaseClient {
       innerClient: innerClient,
     );
   }
+  final CacheStore _cacheStore;
+  final CachePolicy _cachePolicy;
+  final http.Client _innerClient;
+  final List<RequestInterceptor> requestInterceptors;
+  final List<ResponseInterceptor> responseInterceptors;
 
   /// Initializes the client (required for Hive-backed stores).
   ///
@@ -94,7 +92,6 @@ class SmartHttpClient extends http.BaseClient {
         }
       } catch (e) {
         // Log warning and treat as cache miss
-        print('SmartHttpClient: Cache get error: $e');
       }
     }
 
@@ -113,8 +110,8 @@ class SmartHttpClient extends http.BaseClient {
             processedRequest.url.toString(),
           );
           await _cacheStore.set(cacheKey, cachedResponse);
-        } catch (e) {
-          print('SmartHttpClient: Cache set error: $e');
+        } catch (_) {
+          // Ignore cache write errors
         }
         return _toStreamedResponse(response);
       }
@@ -135,8 +132,8 @@ class SmartHttpClient extends http.BaseClient {
           if (stale != null) {
             return _toStreamedResponse(stale.toResponse());
           }
-        } catch (staleError) {
-          print('SmartHttpClient: Cache getStale error: $staleError');
+        } catch (_) {
+          // Ignore stale retrieval errors
         }
       }
       rethrow;
@@ -160,9 +157,7 @@ class SmartHttpClient extends http.BaseClient {
   }
 
   /// Returns cache statistics.
-  Future<CacheStats> cacheStats() {
-    return _cacheStore.stats();
-  }
+  Future<CacheStats> cacheStats() => _cacheStore.stats();
 
   String _getCacheKey(Uri url) {
     // Normalize URL: sorting query parameters
@@ -175,18 +170,17 @@ class SmartHttpClient extends http.BaseClient {
     return normalizedUrl.toString();
   }
 
-  http.StreamedResponse _toStreamedResponse(http.Response response) {
-    return http.StreamedResponse(
-      Stream.value(response.bodyBytes),
-      response.statusCode,
-      contentLength: response.contentLength,
-      request: response.request,
-      headers: response.headers,
-      isRedirect: response.isRedirect,
-      persistentConnection: response.persistentConnection,
-      reasonPhrase: response.reasonPhrase,
-    );
-  }
+  http.StreamedResponse _toStreamedResponse(http.Response response) =>
+      http.StreamedResponse(
+        Stream.value(response.bodyBytes),
+        response.statusCode,
+        contentLength: response.contentLength,
+        request: response.request,
+        headers: response.headers,
+        isRedirect: response.isRedirect,
+        persistentConnection: response.persistentConnection,
+        reasonPhrase: response.reasonPhrase,
+      );
 
   @override
   void close() {

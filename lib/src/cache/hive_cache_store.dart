@@ -5,6 +5,10 @@ import '../interfaces.dart';
 
 /// A persistent implementation of [CacheStore] using the Hive database.
 class HiveCacheStore implements CacheStore {
+  HiveCacheStore({
+    required CachePolicy cachePolicy,
+    this.boxName = 'smart_http_cache',
+  }) : _policy = cachePolicy;
   final String boxName;
   final CachePolicy _policy;
   late Box<Map<dynamic, dynamic>> _box;
@@ -14,16 +18,13 @@ class HiveCacheStore implements CacheStore {
   int _hits = 0;
   int _misses = 0;
 
-  HiveCacheStore({
-    this.boxName = 'smart_http_cache',
-    required CachePolicy cachePolicy,
-  }) : _policy = cachePolicy;
-
   /// Initializes the Hive box and prepares the store for use.
   /// This must be called before any other operations.
   @override
   Future<void> init([String? path]) async {
-    if (_initialized) return;
+    if (_initialized) {
+      return;
+    }
 
     try {
       if (!Hive.isBoxOpen(boxName)) {
@@ -76,7 +77,9 @@ class HiveCacheStore implements CacheStore {
 
     try {
       final data = _box.get(key);
-      if (data == null) return null;
+      if (data == null) {
+        return null;
+      }
 
       final cached = CachedResponse.fromJson(Map<String, dynamic>.from(data));
       await _updateAccessTime(key);
@@ -128,7 +131,7 @@ class HiveCacheStore implements CacheStore {
     _checkInitialized();
 
     try {
-      int totalSize = 0;
+      var totalSize = 0;
       DateTime? oldestTime;
 
       for (final data in _box.values) {
@@ -175,7 +178,7 @@ class HiveCacheStore implements CacheStore {
 
     // Check size limit
     if (_policy.maxSize > 0) {
-      int currentSize = await _calculateTotalSize();
+      var currentSize = await _calculateTotalSize();
       while (currentSize > _policy.maxSize && _box.isNotEmpty) {
         await _evictLRU();
         currentSize = await _calculateTotalSize();
@@ -184,7 +187,9 @@ class HiveCacheStore implements CacheStore {
   }
 
   Future<void> _evictLRU() async {
-    if (_box.isEmpty) return;
+    if (_box.isEmpty) {
+      return;
+    }
 
     String? lruKey;
     DateTime? oldestAccess;
@@ -205,7 +210,7 @@ class HiveCacheStore implements CacheStore {
   }
 
   Future<int> _calculateTotalSize() async {
-    int size = 0;
+    var size = 0;
     for (final data in _box.values) {
       size +=
           CachedResponse.fromJson(Map<String, dynamic>.from(data)).sizeInBytes;
@@ -214,6 +219,5 @@ class HiveCacheStore implements CacheStore {
   }
 
   void _logWarning(String message) {
-    print('SmartHttpClient: HiveCacheStore Warning: $message');
   }
 }

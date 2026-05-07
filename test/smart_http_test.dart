@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:smart_http_client/smart_http_client.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter_test/flutter_test.dart';
-import 'mocks.dart';
+import 'package:http/http.dart' as http;
+import 'package:smart_http_client/smart_http_client.dart';
 
 void main() {
   group('SmartHttpClient', () {
@@ -43,7 +43,7 @@ void main() {
     });
 
     test('stale-if-error returns old data on network error', () async {
-      final url = 'https://api.example.com/data';
+      const url = 'https://api.example.com/data';
       final response = http.Response('{"old": "data"}', 200);
 
       // Manually cache old response (simulating prior successful request)
@@ -65,7 +65,7 @@ void main() {
     });
 
     test('clearCache removes all entries', () async {
-      final url = 'https://api.example.com/data';
+      const url = 'https://api.example.com/data';
       final response = http.Response('{}', 200);
       final cached =
           CachedResponse.fromResponse(response, const CachePolicy(), url);

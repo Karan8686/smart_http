@@ -1,6 +1,6 @@
 /// A smart HTTP client for Dart/Flutter with built-in caching, retry logic, and WebSocket support.
 ///
-/// Provides a drop-in replacement for [http.Client] with automatic caching:
+/// Provides a drop-in replacement for http.Client with automatic caching:
 /// - Transparent HTTP caching (respects Cache-Control headers)
 /// - Offline support (serves stale data if network fails)
 /// - Extensible backends (Hive, in-memory, custom)
@@ -12,7 +12,6 @@
 /// ```dart
 /// final client = SmartHttpClient.inMemory();
 /// final response = await client.get(Uri.parse('https://api.example.com/users'));
-/// print(response.body);
 /// ```
 ///
 /// ### Using persistent cache (production):
@@ -44,17 +43,17 @@
 /// - Lightweight and extensible
 library smart_http;
 
-/// Drop-in replacement for `http.Client` with built-in caching.
-export 'src/client.dart' show SmartHttpClient;
-
 /// Configuration for cache expiry, size limits, and HTTP header respect.
 export 'src/cache/cache_policy.dart' show CachePolicy;
 
 /// Cache storage abstraction and metadata models.
 export 'src/cache/cache_store.dart' show CacheStore, CachedResponse, CacheStats;
 
+/// Persistent cache implementation using Hive database.
+export 'src/cache/hive_cache_store.dart' show HiveCacheStore;
+
 /// Lightweight, RAM-only cache implementation.
 export 'src/cache/in_memory_cache_store.dart' show InMemoryCacheStore;
 
-/// Persistent cache implementation using Hive database.
-export 'src/cache/hive_cache_store.dart' show HiveCacheStore;
+/// Drop-in replacement for `http.Client` with built-in caching.
+export 'src/client.dart' show SmartHttpClient;

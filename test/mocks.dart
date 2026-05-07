@@ -9,10 +9,9 @@ http.Response createMockResponse({
   int statusCode = 200,
   String body = '{"message": "ok"}',
   Map<String, String>? headers,
-}) {
-  return http.Response(
-    body,
-    statusCode,
-    headers: headers ?? {'content-type': 'application/json'},
-  );
-}
+}) =>
+    http.Response(
+      body,
+      statusCode,
+      headers: headers ?? {'content-type': 'application/json'},
+    );

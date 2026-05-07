@@ -5,13 +5,6 @@ import 'cache_policy.dart';
 
 /// A data class that wraps an [http.Response] plus cache metadata.
 class CachedResponse {
-  final String url;
-  final int statusCode;
-  final Map<String, String> headers;
-  final Uint8List body;
-  final DateTime cachedAt;
-  final DateTime expiresAt;
-
   CachedResponse({
     required this.url,
     required this.statusCode,
@@ -40,6 +33,22 @@ class CachedResponse {
     );
   }
 
+  /// Deserializes a [CachedResponse] from JSON.
+  factory CachedResponse.fromJson(Map<String, dynamic> json) => CachedResponse(
+        url: json['url'] as String,
+        statusCode: json['statusCode'] as int,
+        headers: Map<String, String>.from(json['headers'] as Map),
+        body: base64Decode(json['body'] as String),
+        cachedAt: DateTime.parse(json['cachedAt'] as String),
+        expiresAt: DateTime.parse(json['expiresAt'] as String),
+      );
+  final String url;
+  final int statusCode;
+  final Map<String, String> headers;
+  final Uint8List body;
+  final DateTime cachedAt;
+  final DateTime expiresAt;
+
   /// Converts this [CachedResponse] back to an [http.Response].
   http.Response toResponse() {
     final responseHeaders = Map<String, String>.from(headers);
@@ -61,28 +70,14 @@ class CachedResponse {
   int get sizeInBytes => body.length + url.length + headers.toString().length;
 
   /// Serializes this [CachedResponse] to JSON.
-  Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'statusCode': statusCode,
-      'headers': headers,
-      'body': base64Encode(body),
-      'cachedAt': cachedAt.toIso8601String(),
-      'expiresAt': expiresAt.toIso8601String(),
-    };
-  }
-
-  /// Deserializes a [CachedResponse] from JSON.
-  factory CachedResponse.fromJson(Map<String, dynamic> json) {
-    return CachedResponse(
-      url: json['url'] as String,
-      statusCode: json['statusCode'] as int,
-      headers: Map<String, String>.from(json['headers'] as Map),
-      body: base64Decode(json['body'] as String),
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
-    );
-  }
+  Map<String, dynamic> toJson() => {
+        'url': url,
+        'statusCode': statusCode,
+        'headers': headers,
+        'body': base64Encode(body),
+        'cachedAt': cachedAt.toIso8601String(),
+        'expiresAt': expiresAt.toIso8601String(),
+      };
 }
 
 /// Abstract interface for cache storage implementations.
@@ -114,12 +109,6 @@ abstract class CacheStore {
 
 /// Statistics about the cache state.
 class CacheStats {
-  final int hits;
-  final int misses;
-  final int size;
-  final int entries;
-  final Duration avgAge;
-
   const CacheStats({
     required this.hits,
     required this.misses,
@@ -127,4 +116,9 @@ class CacheStats {
     required this.entries,
     this.avgAge = Duration.zero,
   });
+  final int hits;
+  final int misses;
+  final int size;
+  final int entries;
+  final Duration avgAge;
 }

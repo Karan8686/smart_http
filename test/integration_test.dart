@@ -1,5 +1,5 @@
-import 'package:smart_http_client/smart_http_client.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:smart_http_client/smart_http_client.dart';
 
 void main() {
   group('Integration Tests (Real HTTP)', () {

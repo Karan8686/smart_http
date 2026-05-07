@@ -1,16 +1,16 @@
-import 'package:smart_http_client/smart_http_client.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:smart_http_client/smart_http_client.dart';
 
 void main() {
   group('CachePolicy', () {
     test('default policy has 1-hour maxAge', () {
-      final policy = CachePolicy();
+      const policy = CachePolicy();
       expect(policy.maxAge, const Duration(hours: 1));
     });
 
     test('copyWith creates new instance', () {
-      final policy = CachePolicy();
+      const policy = CachePolicy();
       final newPolicy = policy.copyWith(
         maxAge: const Duration(minutes: 30),
       );

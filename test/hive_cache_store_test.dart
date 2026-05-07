@@ -22,8 +22,8 @@ void main() {
 
   tearDown(() async {
     await Hive.close();
-    if (await tempDir.exists()) {
-      await tempDir.delete(recursive: true);
+    if (tempDir.existsSync()) {
+      tempDir.deleteSync(recursive: true);
     }
   });
 

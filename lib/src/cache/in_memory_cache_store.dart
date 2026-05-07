@@ -4,15 +4,14 @@ import '../interfaces.dart';
 /// A lightweight, zero-dependency in-memory implementation of [CacheStore].
 /// Data is stored in RAM and is lost when the application restarts.
 class InMemoryCacheStore implements CacheStore {
+  InMemoryCacheStore({required CachePolicy cachePolicy})
+      : _policy = cachePolicy;
   final CachePolicy _policy;
   final Map<String, CachedResponse> _cache = {};
   final Map<String, DateTime> _accessTimes = {};
 
   int _hits = 0;
   int _misses = 0;
-
-  InMemoryCacheStore({required CachePolicy cachePolicy})
-      : _policy = cachePolicy;
 
   /// In-memory store is ready immediately. init() is a no-op for compatibility.
   @override
@@ -102,7 +101,7 @@ class InMemoryCacheStore implements CacheStore {
   @override
   Future<CacheStats> stats() async {
     try {
-      int totalSize = 0;
+      var totalSize = 0;
       DateTime? oldestTime;
 
       for (final cached in _cache.values) {
@@ -144,7 +143,7 @@ class InMemoryCacheStore implements CacheStore {
 
     // Check size limit
     if (_policy.maxSize > 0) {
-      int currentSize = _calculateTotalSize();
+      var currentSize = _calculateTotalSize();
       while (currentSize > _policy.maxSize && _cache.isNotEmpty) {
         _evictLRU();
         currentSize = _calculateTotalSize();
@@ -153,7 +152,9 @@ class InMemoryCacheStore implements CacheStore {
   }
 
   void _evictLRU() {
-    if (_cache.isEmpty) return;
+    if (_cache.isEmpty) {
+      return;
+    }
 
     // Find least recently used key
     String? lruKey;
@@ -172,14 +173,11 @@ class InMemoryCacheStore implements CacheStore {
     }
   }
 
-  int _calculateTotalSize() {
-    return _cache.values.fold<int>(
-      0,
-      (sum, cached) => sum + cached.sizeInBytes,
-    );
-  }
+  int _calculateTotalSize() => _cache.values.fold<int>(
+        0,
+        (sum, cached) => sum + cached.sizeInBytes,
+      );
 
   void _logWarning(String message) {
-    print('[SmartHttpCache] WARNING: $message');
   }
 }

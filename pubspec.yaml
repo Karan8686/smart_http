@@ -1,0 +1,30 @@
+name: smart_http_client
+description: A smart HTTP client for Dart/Flutter with transparent caching, offline support, and retry logic. Drop-in replacement for http.Client.
+version: 1.0.1
+repository: https://github.com/Karan8686/smart_http
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hive: ^2.2.3
+  http: ^1.1.0
+  path_provider: ^2.1.1
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.4.0
+  test: ^1.24.0
+
+topics:
+  - http
+  - cache
+  - offline
+  - networking
+  - flutter
+
+flutter:

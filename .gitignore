@@ -1,0 +1,28 @@
+# Dart/Flutter
+.dart_tool/
+build/
+pubspec.lock
+*.iml
+.packages
+.pub-cache/
+.pub/
+coverage/
+doc/api/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Generated files
+*.g.dart
+*.config.dart
+*.freezed.dart
+
+# Testing
+.coverage/
+test/.test_coverage.dart
